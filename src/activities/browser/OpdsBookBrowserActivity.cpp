@@ -271,9 +271,9 @@ void OpdsBookBrowserActivity::downloadBook(const OpdsEntry& book) {
   std::string downloadUrl = UrlUtils::buildUrl(feedUrl, book.href);
   std::string libraryPath = "/";
   std::string tempPath = "/.crosspoint/tmp/";
-  std::string impliedFilename =
+  std::string sanitizedImpliedFilename =
       StringUtils::sanitizeFilename((book.author.empty() ? "" : book.author + " - ") + book.title) + ".epub";
-  std::string tempFilePath = tempPath + impliedFilename + ".tmp";
+  std::string tempFilePath = tempPath + sanitizedImpliedFilename + ".tmp";
   LOG_DBG("OPDS", "Downloading: %s -> %s", downloadUrl.c_str(), tempFilePath.c_str());
 
   std::string serverFilename;
@@ -294,9 +294,9 @@ void OpdsBookBrowserActivity::downloadBook(const OpdsEntry& book) {
     return;
   }
 
-  std::string finalFilename = (server.keepFilename && !serverFilename.empty())
-                                  ? StringUtils::sanitizeFilename(serverFilename)
-                                  : impliedFilename;
+  std::string sanitizedServerFilename = StringUtils::sanitizeFilename(serverFilename);
+  std::string finalFilename =
+      (server.keepFilename && !sanitizedServerFilename.empty()) ? sanitizedServerFilename : sanitizedImpliedFilename;
   std::string finalFilePath = libraryPath + finalFilename;
 
   if (Storage.exists(finalFilePath.c_str())) {
